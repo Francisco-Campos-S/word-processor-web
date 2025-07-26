@@ -9,8 +9,9 @@ from docx.shared import RGBColor
 import zipfile
 import tempfile
 
+# Crear aplicación Flask
 app = Flask(__name__)
-app.secret_key = 'tu_clave_secreta_muy_segura_aqui'
+app.secret_key = os.environ.get('SECRET_KEY', 'tu_clave_secreta_muy_segura_aqui')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Configuración de carpetas
@@ -21,6 +22,14 @@ ALLOWED_EXTENSIONS = {'docx', 'docm'}
 # Asegurar que las carpetas existen
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+
+# Configuración para producción
+if os.environ.get('FLASK_ENV') == 'production':
+    app.config.update(
+        SECRET_KEY=os.environ.get('SECRET_KEY', 'clave-super-secreta-produccion'),
+        DEBUG=False,
+        TESTING=False
+    )
 
 def allowed_file(filename):
     """Verificar si el archivo tiene una extensión permitida"""
@@ -297,6 +306,16 @@ def copy_run_format(source_font, target_font):
 def index():
     """Página principal"""
     return render_template('index.html')
+
+@app.route('/health')
+def health():
+    """Endpoint de salud para verificar que el servidor funciona"""
+    return jsonify({"status": "ok", "message": "Servidor funcionando correctamente"})
+
+@app.route('/test')
+def test():
+    """Endpoint de prueba"""
+    return "<h1>¡El servidor Flask está funcionando!</h1><p>La aplicación está corriendo correctamente en Render.</p>"
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
