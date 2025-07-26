@@ -1,0 +1,6 @@
+{
+  "name": "word-processor-web",
+  "description": "Aplicacion web para insertar caracteres invisibles en documentos Word",
+  "private": false,
+  "auto_init": false
+}
