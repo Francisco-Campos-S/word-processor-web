@@ -32,6 +32,9 @@ if os.environ.get('FLASK_ENV') == 'production':
         TESTING=False
     )
 
+# Asegurar que Flask funcione con Gunicorn
+application = app
+
 def allowed_file(filename):
     """Verificar si el archivo tiene una extensión permitida"""
     return '.' in filename and \
