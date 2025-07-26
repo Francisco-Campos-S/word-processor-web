@@ -1,6 +1,7 @@
 import os
 import pathlib
 import traceback
+import sys
 from datetime import datetime
 from flask import Flask, request, render_template, send_file, flash, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
@@ -465,13 +466,42 @@ def status():
     """Endpoint para verificar el estado del servidor"""
     return jsonify({'status': 'online', 'message': 'Servidor funcionando correctamente'})
 
+@app.route('/health')
+def health():
+    """Endpoint de salud para Render.com"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'port': os.environ.get('PORT', '5000'),
+        'env': os.environ.get('FLASK_ENV', 'development')
+    })
+
+@app.route('/test')
+def test():
+    """Endpoint de prueba simple"""
+    return jsonify({
+        'message': 'Flask app funcionando correctamente',
+        'python_version': sys.version,
+        'cwd': os.getcwd(),
+        'uploads_dir': UPLOAD_FOLDER,
+        'processed_dir': PROCESSED_FOLDER
+    })
+
 if __name__ == '__main__':
     print("🚀 Iniciando servidor web...")
     print("📁 Procesador de documentos Word")
+    print(f"📦 Puerto configurado: {os.environ.get('PORT', '5000')}")
+    print(f"🌍 Entorno: {os.environ.get('FLASK_ENV', 'development')}")
+    print(f"📂 Directorio actual: {os.getcwd()}")
     
     # Configuración para deployment
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') != 'production'
+    
+    # Asegurar que las carpetas existen
+    print(f"📁 Creando carpetas: {UPLOAD_FOLDER}, {PROCESSED_FOLDER}")
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    os.makedirs(PROCESSED_FOLDER, exist_ok=True)
     
     if debug:
         print("🌐 Accede a: http://localhost:5000")
@@ -480,5 +510,18 @@ if __name__ == '__main__':
     else:
         print(f"🌐 Servidor iniciando en puerto {port}")
         print("📝 Aplicación en modo producción")
+        print("🔍 Endpoints disponibles: /, /status, /health, /test")
     
-    app.run(debug=debug, host='0.0.0.0', port=port)
+    try:
+        # Configuración mejorada para Render.com
+        app.run(
+            debug=debug, 
+            host='0.0.0.0', 
+            port=port,
+            threaded=True,
+            use_reloader=False
+        )
+    except Exception as e:
+        print(f"❌ Error al iniciar servidor: {e}")
+        import traceback
+        traceback.print_exc()
