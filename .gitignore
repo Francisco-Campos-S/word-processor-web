@@ -1,0 +1,13 @@
+# Archivos que no se suben a GitHub
+venv/
+uploads/
+processed/
+*.bat
+*.ps1
+test_*.py
+analizar_*.py
+limpiar.*
+__pycache__/
+*.pyc
+.env
+*.log

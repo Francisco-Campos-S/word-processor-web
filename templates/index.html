@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesador de Documentos Word</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin: 50px auto;
+            max-width: 800px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .upload-area {
+            border: 3px dashed var(--secondary-color);
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--success-color);
+            background: #e8f5e8;
+            transform: translateY(-5px);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--success-color);
+            background: #e8f5e8;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, var(--secondary-color), #5dade2);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+            color: white;
+        }
+
+        .progress-container {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .progress {
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(45deg, var(--success-color), #58d68d);
+            transition: width 0.3s ease;
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            background: #e8f5e8;
+            border-left: 5px solid var(--success-color);
+        }
+
+        .error-container {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            background: #fdf2f2;
+            border-left: 5px solid var(--danger-color);
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .feature-list {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: #f8f9fa;
+        }
+
+        .feature-icon {
+            color: var(--success-color);
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .spinner {
+            display: none;
+            margin: 20px auto;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .upload-area {
+                padding: 40px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-file-word"></i> Procesador de Documentos Word</h1>
+                <p>Inserta caracteres "0" invisibles automáticamente para optimizar similitud en documentos</p>
+            </div>
+
+            <!-- Configuración -->
+            <div class="config-section">
+                <h5><i class="fas fa-cog"></i> Configuración</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="paso" class="form-label">Intervalo de caracteres:</label>
+                        <input type="number" class="form-control" id="paso" value="70" min="10" max="200">
+                        <small class="form-text text-muted">Cada cuántos caracteres insertar un "0" invisible</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de carga -->
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4>Arrastra tu documento aquí</h4>
+                    <p>o haz clic para seleccionar</p>
+                    <p><small class="text-muted">Archivos soportados: .docx, .docm (máx. 16MB)</small></p>
+                    <input type="file" class="file-input" id="fileInput" name="file" accept=".docx,.docm">
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-custom btn-lg" id="processBtn" disabled>
+                        <i class="fas fa-magic"></i> Procesar Documento
+                    </button>
+                </div>
+            </form>
+
+            <!-- Spinner de carga -->
+            <div class="spinner" id="loadingSpinner">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Procesando...</span>
+                    </div>
+                </div>
+                <p class="text-center mt-3">Procesando documento...</p>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="progress-container" id="progressContainer">
+                <label class="form-label">Progreso:</label>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Resultado exitoso -->
+            <div class="result-container" id="resultContainer">
+                <h5><i class="fas fa-check-circle"></i> ¡Documento procesado exitosamente!</h5>
+                <p>Tu documento ha sido procesado con caracteres invisibles para optimizar la similitud.</p>
+                <a href="#" class="btn btn-success" id="downloadBtn">
+                    <i class="fas fa-download"></i> Descargar Documento
+                </a>
+            </div>
+
+            <!-- Error -->
+            <div class="error-container" id="errorContainer">
+                <h5><i class="fas fa-exclamation-circle"></i> Error al procesar</h5>
+                <p id="errorMessage">Ha ocurrido un error inesperado.</p>
+                <button class="btn btn-outline-danger" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> Intentar de nuevo
+                </button>
+            </div>
+
+            <!-- Características -->
+            <div class="feature-list">
+                <h5><i class="fas fa-star"></i> Características</h5>
+                <div class="feature-item">
+                    <i class="fas fa-eye-slash feature-icon"></i>
+                    <span>Inserta caracteres "0" automáticamente invisibles (color blanco)</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-file-download feature-icon"></i>
+                    <span>Procesamiento rápido y descarga inmediata</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <span>Archivos seguros - se eliminan después del procesamiento</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-mobile-alt feature-icon"></i>
+                    <span>Compatible con dispositivos móviles y escritorio</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-cog feature-icon"></i>
+                    <span>Configurable - ajusta el intervalo de caracteres</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
