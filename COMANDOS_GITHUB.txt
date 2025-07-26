@@ -1,0 +1,25 @@
+# ===============================================
+#  COMANDOS PARA EJECUTAR DESPUÉS DE CREAR EL REPO
+# ===============================================
+
+# EJEMPLO: Si tu usuario es "maria123", ejecuta:
+# git remote add origin https://github.com/maria123/word-processor-web.git
+# git push -u origin main
+
+# PLANTILLA: Cambia "TU-USUARIO" por tu username real:
+git remote add origin https://github.com/TU-USUARIO/word-processor-web.git
+git push -u origin main
+
+# ===============================================
+#  DESPUÉS: DEPLOYMENT EN RENDER (GRATIS)
+# ===============================================
+
+# 1. Ve a https://render.com
+# 2. "Get Started for Free" 
+# 3. Connect GitHub account
+# 4. "New" → "Web Service"
+# 5. Select "word-processor-web" repository  
+# 6. Click "Connect"
+# 7. ¡Deploy automático en 3-5 minutos!
+
+# Tu app estará en: https://word-processor-web-XXXX.onrender.com

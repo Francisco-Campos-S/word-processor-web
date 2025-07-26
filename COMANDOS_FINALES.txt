@@ -1,0 +1,23 @@
+🎯 COMANDOS LISTOS PARA EJECUTAR
+===============================================
+
+Una vez que crees el repositorio en GitHub, ejecuta:
+
+git remote add origin https://github.com/Francisco-Campos-S/word-processor-web.git
+git push -u origin main
+
+===============================================
+📁 Tu proyecto YA está listo con:
+✅ Flask app funcionando
+✅ Archivos optimizados 
+✅ render.yaml para deployment
+✅ README.md profesional
+✅ Git inicializado
+
+🚀 DESPUÉS DEL PUSH:
+1. Ve a https://render.com
+2. "New" → "Web Service"
+3. Connect GitHub repo: word-processor-web
+4. ¡Deploy automático!
+
+Tu app estará en: https://word-processor-web-XXXX.onrender.com
